@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <!-- 문서의 문자 인코딩을 UTF-8로 지정합니다. 한글이 깨지지 않게 해줍니다. -->
+  <meta charset="UTF-8">
+  <!-- 모바일 화면에서 실제 화면 너비에 맞춰 페이지를 표시합니다. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 브라우저 탭에 표시될 제목입니다. -->
+  <title>SubTrack - 구독 관리</title>
+  <!-- 화면의 디자인을 담당하는 CSS 파일을 연결합니다. -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- 페이지 최상단: 로고와 오늘 날짜를 보여주는 영역입니다. -->
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <!-- 로고를 클릭하면 현재 페이지(index.html)를 다시 엽니다. -->
+      <a class="brand" href="./">Sub<span>Track</span></a>
+      <!-- main.js가 오늘 날짜를 계산해서 이 빈 요소에 넣습니다. -->
+      <p class="today-label" id="todayLabel"></p>
+    </div>
+  </header>
+
+  <!-- 실제 페이지 콘텐츠를 담는 영역입니다. -->
+  <main class="container">
+    <!-- 서비스 소개 문구와 장식 아이콘을 보여주는 첫 화면 영역입니다. -->
+    <section class="hero">
+      <div>
+        <p class="eyebrow">MY SUBSCRIPTIONS</p>
+        <h1>구독을 한눈에<br><strong>관리하세요.</strong></h1>
+        <p class="hero-copy">매달 빠져나가는 구독료를 간단하게 기록하고<br class="desktop-only"> 놓치는 결제 없이 관리해보세요.</p>
+      </div>
+      <div class="hero-mark" aria-hidden="true">₩</div>
+    </section>
+
+    <!-- 자바스크립트가 계산한 요약 정보를 표시합니다. -->
+    <section class="summary-grid" aria-label="구독 요약">
+      <article class="summary-card primary">
+        <div class="summary-icon">₩</div>
+        <div><span>이번 달 구독료</span><strong id="monthlyTotal">₩0</strong></div>
+      </article>
+      <article class="summary-card">
+        <div class="summary-icon purple">↗</div>
+        <div><span>예상 연간 지출</span><strong id="yearlyTotal">₩0</strong></div>
+      </article>
+      <article class="summary-card">
+        <div class="summary-icon orange">!</div>
+        <div><span>이번 주 결제 예정</span><strong id="dueSoonCount">0건</strong></div>
+      </article>
+    </section>
+
+    <!-- 왼쪽에는 목록, 오른쪽에는 입력 폼과 카테고리 분석을 배치합니다. -->
+    <div class="content-grid">
+      <section class="panel subscriptions-panel">
+        <div class="panel-heading">
+          <div><p class="eyebrow">SUBSCRIPTIONS</p><h2>내 구독 목록 <span id="subscriptionCount">0</span></h2></div>
+          <!-- 클릭하면 입력 폼으로 스크롤하고 이름 입력칸에 포커스를 줍니다. -->
+          <button class="text-button" id="focusFormButton" type="button">+ 새 구독</button>
+        </div>
+        <!-- main.js가 구독 카드 HTML을 이곳에 동적으로 삽입합니다. -->
+        <div id="subscriptionList" class="subscription-list"></div>
+      </section>
+
+      <aside class="side-column">
+        <section class="panel form-panel" id="formPanel">
+          <div class="panel-heading compact">
+            <div><p class="eyebrow">ADD NEW</p><h2 id="formTitle">새 구독 추가</h2></div>
+            <button class="icon-button hidden" id="cancelEditButton" type="button" aria-label="수정 취소">×</button>
+          </div>
+          <!-- submit 이벤트는 main.js가 받아서 추가 또는 수정 작업을 처리합니다. -->
+          <form id="subscriptionForm">
+            <!-- 수정할 때 기존 구독의 id를 잠시 보관합니다. 화면에는 표시하지 않습니다. -->
+            <input type="hidden" id="subscriptionId">
+            <label>서비스 이름<input id="name" name="name" type="text" placeholder="예: 넷플릭스" required maxlength="40"></label>
+            <div class="form-row">
+              <label>금액<input id="amount" name="amount" type="number" min="0" step="1" placeholder="13,500" required></label>
+              <label>주기<select id="cycle" name="cycle"><option value="monthly">매월</option><option value="yearly">매년</option></select></label>
+            </div>
+            <div class="form-row">
+              <label>다음 결제일<input id="nextPaymentDate" name="nextPaymentDate" type="date" required></label>
+              <label>카테고리<select id="category" name="category"><option>영상</option><option>음악</option><option>생산성</option><option>쇼핑</option><option>게임</option><option>기타</option></select></label>
+            </div>
+            <label>결제 수단<select id="paymentMethod" name="paymentMethod"><option>카드</option><option>계좌이체</option><option>휴대폰결제</option></select></label>
+            <label class="checkbox-label"><input id="autoRenew" name="autoRenew" type="checkbox" checked><span>자동 결제 중</span></label>
+            <!-- type="submit"이므로 폼 제출 이벤트가 발생합니다. -->
+            <button class="submit-button" id="submitButton" type="submit">구독 추가하기</button>
+          </form>
+        </section>
+
+        <section class="panel category-panel">
+          <div class="panel-heading compact"><div><p class="eyebrow">BREAKDOWN</p><h2>카테고리별 비중</h2></div></div>
+          <div id="categoryBreakdown" class="category-breakdown"></div>
+        </section>
+      </aside>
+    </div>
+  </main>
+  <!-- 짧은 성공 메시지를 화면 아래에 보여주는 알림 영역입니다. -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <!-- 계산 로직을 먼저 읽어야 ui.js에서 그 함수를 사용할 수 있습니다. -->
+  <script src="js/logic.js?v=1"></script>
+  <!-- 화면을 그리는 함수들을 읽습니다. -->
+  <script src="js/ui.js?v=2"></script>
+  <!-- 저장, 추가, 수정, 삭제 같은 전체 동작을 연결합니다. -->
+  <script src="js/main.js?v=4"></script>
+</body>
+</html>
